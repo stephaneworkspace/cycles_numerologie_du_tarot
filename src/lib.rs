@@ -6,7 +6,7 @@ use image::RgbaImage;
 /****************
  * Generate png *
  ****************/
-pub fn generate(j: usize, m: usize, a: usize, age: usize, path_psd: String) -> Result<(Vec<u8>), Box<dyn std::error::Error>> {
+pub fn generate(j: usize, m: usize, a: usize, age: usize, path_psd: String) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
     let calques = calcl(j, m, a, age);
     let psd_bytes = fs::read(&path_psd)
         .map_err(|e| format!("Impossible de lire le PSD à '{}': {}", &path_psd, e))?;
@@ -168,20 +168,20 @@ fn calcl(j: usize, m: usize, a: usize, age: usize) -> Vec<String> {
     //println!("PEX:    PA: {:4} SA: {:4} PB: {:4} SB: {:4}", pexpa, pexpb, pexsa, pexsb);
     //println!("PPR:    PA: {:4} SA: {:4} PB: {:4} SB: {:4}", pprpa, pprpb, pprsa, pprsb);
     //---
-    let f_caipa = Some(caipa);
+    let _f_caipa = Some(caipa);
     let f_caisa = if caipa == caisa { None } else { Some(caisa) };
-    let f_intpa = Some(intpa);
+    let _f_intpa = Some(intpa);
     let f_intpb = if intpa == intpb || intpb == 0 { None } else { Some(intpb) };
     let f_intsa = if intpa == intsa { None } else { Some(intsa) };
     let f_intsb = if intsa == intsb || intsb == 0 { None } else { Some(intsb) };
-    let f_caepa = Some(caepa);
+    let _f_caepa = Some(caepa);
     let f_caesa = if caepa == caesa { None } else { Some(caesa) };
     //---
-    let f_coipa = Some(coipa);
+    let _f_coipa = Some(coipa);
     let f_coipb = if f_intpb.is_some() { Some(coipb) } else { None };
     let f_coisa = if f_caisa.is_some() || f_intsa.is_some() { Some(coisa) } else { None };
     let f_coisb = if f_caisa.is_some() || f_intsb.is_some() { Some(coisb) } else { None };
-    let f_coepa = Some(coepa);
+    let _f_coepa = Some(coepa);
     let f_coepb = if f_intpb.is_some() { Some(coepb) } else { None };
     let f_coesa = if f_caesa.is_some() || f_intsa.is_some() { Some(coesa) } else { None };
     let f_coesb = if f_caesa.is_some() || f_intsb.is_some() { Some(coesb) } else { None };
@@ -231,10 +231,6 @@ fn calcl(j: usize, m: usize, a: usize, age: usize) -> Vec<String> {
     let f_reaction_pprsb = if f_pprsb.is_some() { Some(reaction_pprsb) } else { None };
     //println!("RéactiPPR: {:?}/{:?}/{:?}/{:?}", f_reaction_pprpa, f_reaction_pprpb, f_reaction_pprsa, f_reaction_pprsb);
     //---
-    let action_nempa = reduction_theosophique(reduction_theosophique(age + 1, false) + nempa, false);
-    let action_nemsa = reduction_theosophique(reduction_theosophique(age + 1, false) + nemsa, false);
-    let f_action_nempa = Some(action_nempa);
-    let f_action_nemsa = if f_nemsa.is_some() { Some(action_nemsa) } else { None };
     //println!("ActionNEM: {:?}/{:?}", f_action_nempa, f_action_nemsa);
     let f_pulsion_nempa = f_pulsion_pprpa;
     let f_pulsion_nemsa = if f_nemsa.is_some() { f_pulsion_pprsa } else { None };
