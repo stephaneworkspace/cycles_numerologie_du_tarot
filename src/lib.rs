@@ -1,4 +1,5 @@
 use std::fs;
+use std::io::Cursor;
 use psd::{Psd};
 use image::RgbaImage;
 use serde::Deserialize;
@@ -401,6 +402,11 @@ fn calcl(j: usize, m: usize, a: usize, age: usize) -> Vec<String> {
     calques
 }
 
+/**************************
+ * Réduction théosophique *
+ * sw_9 = false -> 22     *
+ * sw_9 = true -> 9       *
+ **************************/
 fn reduction_theosophique(mut n: usize, sw_9: bool) -> usize {
     let t = if sw_9 { 9 } else { 22 };
     while n > t {
@@ -414,7 +420,10 @@ fn reduction_theosophique(mut n: usize, sw_9: bool) -> usize {
     n
 }
 
-pub fn generate(j: usize, m: usize, a: usize, age: usize, path_psd: String) -> Result<(), Box<dyn std::error::Error>> {
+/****************
+ * Generate png *
+ ****************/
+pub fn generate(j: usize, m: usize, a: usize, age: usize, path_psd: String) -> Result<(Vec<u8>), Box<dyn std::error::Error>> {
     let calques = calcl(j, m, a, age);
     let psd_bytes = fs::read(&path_psd)
         .map_err(|e| format!("Impossible de lire le PSD à '{}': {}", &path_psd, e))?;
@@ -488,10 +497,19 @@ pub fn generate(j: usize, m: usize, a: usize, age: usize, path_psd: String) -> R
             }
         }
     }
-    final_image_img.save("./tmp/cycles.png").unwrap();
-    Ok(())
+    //final_image_img.save("./tmp/cycles.png").unwrap();
+    let mut buf = Vec::new();
+    final_image_img
+        .write_to(&mut Cursor::new(&mut buf), image::ImageFormat::Png)
+        .expect("Échec encodage PNG");
+    Ok(buf)
 }
 
+/***********************************
+ * Trouver cadre dans le photoshop *
+ * En fonction de ma manière de    *
+ * nommer les layers               *
+ ***********************************/
 fn trouver_cadre(claque: &str) -> Option<String> {
     // Personalité Profonde PA
     if claque.starts_with("PPRPA") {
