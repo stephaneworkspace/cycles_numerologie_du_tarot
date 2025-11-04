@@ -193,14 +193,46 @@ fn calcl(j: usize, m: usize, a: usize, age: usize) -> Vec<String> {
     let f_nemsa = if f_caisa.is_some() || f_caesa.is_some() { Some(nemsa) } else { None };
 
     let f_pexpa = Some(pexpa);
-    let f_pexpb = if f_coipb.is_some() || f_coepb.is_some() { Some(pexpb) } else { None };
+    let f_pexpb = if intpa != intpb {
+        if f_coipb.is_some() || f_coepb.is_some() {
+            Some(pexpb)
+        } else {
+            None
+        }
+    } else {
+        None
+    };
     let f_pexsa = if f_coisa.is_some() || f_coesa.is_some() { Some(pexsa) } else { None };
-    let f_pexsb = if f_coisb.is_some() || f_coesb.is_some() { Some(pexsb) } else { None };
+    let f_pexsb = if intpa != intpb {
+        if f_coisb.is_some() || f_coesb.is_some() {
+            Some(pexsb)
+        } else {
+            None }
+    } else {
+        None
+    };
 
     let f_pprpa = Some(pprpa);
-    let f_pprpb = if f_intpb.is_some() { Some(pprpb) } else { None };
+    let f_pprpb = if intpa != intpb {
+        if f_intpb.is_some() {
+            Some(pprpb)
+        } else {
+            None
+        }
+    } else {
+        None
+    };
     let f_pprsa = if f_intsa.is_some() || f_caisa.is_some() || f_caesa.is_some() { Some(pprsa) } else { None };
-    let f_pprsb = if f_intsb.is_some() || f_caisa.is_some() || f_caesa.is_some() { Some(pprsb) } else { None };
+    let f_pprsb = if intsa != intsb {
+        if f_intsb.is_some() || f_caisa.is_some() || f_caesa.is_some() {
+            Some(pprsb)
+        }
+        else {
+            None
+        }
+    } else {
+        None
+    };
     if SW_DEBUG {
         println!("Final CAI: {:?}/{:?}", f_caipa, f_caisa);
         println!("Final INT: {:?}/{:?}/{:?}/{:?}", f_intpa, f_intpb, f_intsa, f_intsb);
