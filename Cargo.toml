@@ -2,6 +2,10 @@
 name = "cycles_numerologie_du_tarot"
 version = "0.1.0"
 edition = "2024"
+authors = ["Stéphane Bressani <stephane@bressani.dev>"]
+description = "Un crate pour calculer les cycles de numérologie du tarot (nécessite le fichier photosoph non distribué pour des raisons de copyright)"
+license = "MIT"
+repository = "https://github.com/stephaneworkspace/cycles_numerologie_du_tarot"
 
 [dependencies]
 psd = "0.3"
