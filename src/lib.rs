@@ -110,11 +110,12 @@ fn reduction_theosophique(mut n: usize, sw_9: bool) -> usize {
  * Calcul des calques Photoshop *
  ********************************/
 fn calcl(j: usize, m: usize, a: usize, age: usize) -> Vec<String> {
+    const SW_DEBUG: bool = true;
     let caipa = reduction_theosophique(j, false);
     let caisa = reduction_theosophique(caipa, true);
     //---
     let intpa = reduction_theosophique(m, false);
-    let mut intpb = 0;
+    let mut intpb = intpa;
     if j > 22 {
         let mut mm = intpa + 1;
         if mm > 12 {
@@ -123,7 +124,7 @@ fn calcl(j: usize, m: usize, a: usize, age: usize) -> Vec<String> {
         intpb = reduction_theosophique(mm, false);
     }
     let intsa = reduction_theosophique(intpa, true);
-    let mut intsb = 0;
+    let mut intsb = intsa;
     if intsa > 0 {
         if j > 22 {
             let mut mm = intpa + 1;
@@ -159,29 +160,31 @@ fn calcl(j: usize, m: usize, a: usize, age: usize) -> Vec<String> {
     let pprpb = reduction_theosophique(caipa + intpb + caepa, false);
     let pprsa = reduction_theosophique(caisa + intsa + caesa, false);
     let pprsb = reduction_theosophique(caisa + intsb + caesa, false);
-    //println!("J: {:4} PA: {:4} SA: {:4}", j, caipa, caisa);
-    //println!("M: {:4} PA: {:4} SA: {:4} PB: {:4} SB: {:4}", m, intpa, intsa, intpb, intsb);
-    //println!("A: {:4} PA: {:4} SA: {:4}", a, caepa, caesa);
-    //println!("COI:    PA: {:4} SA: {:4} PB: {:4} SB: {:4}", coipa, coipb, coisa, coisb);
-    //println!("COE:    PA: {:4} SA: {:4} PB: {:4} SB: {:4}", coepa, coepb, coesa, coesb);
-    //println!("NEM:    PA: {:4} SA: {:4}", nempa, nemsa);
-    //println!("PEX:    PA: {:4} SA: {:4} PB: {:4} SB: {:4}", pexpa, pexpb, pexsa, pexsb);
-    //println!("PPR:    PA: {:4} SA: {:4} PB: {:4} SB: {:4}", pprpa, pprpb, pprsa, pprsb);
+    if SW_DEBUG {
+        println!("J: {:4} PA: {:4} SA: {:4}", j, caipa, caisa);
+        println!("M: {:4} PA: {:4} SA: {:4} PB: {:4} SB: {:4}", m, intpa, intsa, intpb, intsb);
+        println!("A: {:4} PA: {:4} SA: {:4}", a, caepa, caesa);
+        println!("COI:    PA: {:4} SA: {:4} PB: {:4} SB: {:4}", coipa, coipb, coisa, coisb);
+        println!("COE:    PA: {:4} SA: {:4} PB: {:4} SB: {:4}", coepa, coepb, coesa, coesb);
+        println!("NEM:    PA: {:4} SA: {:4}", nempa, nemsa);
+        println!("PEX:    PA: {:4} SA: {:4} PB: {:4} SB: {:4}", pexpa, pexpb, pexsa, pexsb);
+        println!("PPR:    PA: {:4} SA: {:4} PB: {:4} SB: {:4}", pprpa, pprpb, pprsa, pprsb);
+    }
     //---
-    let _f_caipa = Some(caipa);
+    let f_caipa = Some(caipa);
     let f_caisa = if caipa == caisa { None } else { Some(caisa) };
-    let _f_intpa = Some(intpa);
+    let f_intpa = Some(intpa);
     let f_intpb = if intpa == intpb || intpb == 0 { None } else { Some(intpb) };
     let f_intsa = if intpa == intsa { None } else { Some(intsa) };
     let f_intsb = if intsa == intsb || intsb == 0 { None } else { Some(intsb) };
-    let _f_caepa = Some(caepa);
+    let f_caepa = Some(caepa);
     let f_caesa = if caepa == caesa { None } else { Some(caesa) };
     //---
-    let _f_coipa = Some(coipa);
+    let f_coipa = Some(coipa);
     let f_coipb = if f_intpb.is_some() { Some(coipb) } else { None };
     let f_coisa = if f_caisa.is_some() || f_intsa.is_some() { Some(coisa) } else { None };
     let f_coisb = if f_caisa.is_some() || f_intsb.is_some() { Some(coisb) } else { None };
-    let _f_coepa = Some(coepa);
+    let f_coepa = Some(coepa);
     let f_coepb = if f_intpb.is_some() { Some(coepb) } else { None };
     let f_coesa = if f_caesa.is_some() || f_intsa.is_some() { Some(coesa) } else { None };
     let f_coesb = if f_caesa.is_some() || f_intsb.is_some() { Some(coesb) } else { None };
@@ -198,20 +201,23 @@ fn calcl(j: usize, m: usize, a: usize, age: usize) -> Vec<String> {
     let f_pprpb = if f_intpb.is_some() { Some(pprpb) } else { None };
     let f_pprsa = if f_intsa.is_some() || f_caisa.is_some() || f_caesa.is_some() { Some(pprsa) } else { None };
     let f_pprsb = if f_intsb.is_some() || f_caisa.is_some() || f_caesa.is_some() { Some(pprsb) } else { None };
-
-    //println!("Final CAI: {:?}/{:?}", f_caipa, f_caisa);
-    //println!("Final INT: {:?}/{:?}/{:?}/{:?}", f_intpa, f_intpb, f_intsa, f_intsb);
-    //println!("Final CAE: {:?}/{:?}", f_caepa, f_caesa);
-    //println!("Final COI: {:?}/{:?}/{:?}/{:?}", f_coipa, f_coipb, f_coisa, f_coisb);
-    //println!("Final COE: {:?}/{:?}/{:?}/{:?}", f_coepa, f_coepb, f_coesa, f_coesb);
-    //println!("Final NEM: {:?}/{:?}", f_nempa, f_nemsa);
-    //println!("Final PEX: {:?}/{:?}/{:?}/{:?}", f_pexpa, f_pexpb, f_pexsa, f_pexsb);
-    //println!("Final PPR: {:?}/{:?}/{:?}/{:?}", f_pprpa, f_pprpb, f_pprsa, f_pprsb);
+    if SW_DEBUG {
+        println!("Final CAI: {:?}/{:?}", f_caipa, f_caisa);
+        println!("Final INT: {:?}/{:?}/{:?}/{:?}", f_intpa, f_intpb, f_intsa, f_intsb);
+        println!("Final CAE: {:?}/{:?}", f_caepa, f_caesa);
+        println!("Final COI: {:?}/{:?}/{:?}/{:?}", f_coipa, f_coipb, f_coisa, f_coisb);
+        println!("Final COE: {:?}/{:?}/{:?}/{:?}", f_coepa, f_coepb, f_coesa, f_coesb);
+        println!("Final NEM: {:?}/{:?}", f_nempa, f_nemsa);
+        println!("Final PEX: {:?}/{:?}/{:?}/{:?}", f_pexpa, f_pexpb, f_pexsa, f_pexsb);
+        println!("Final PPR: {:?}/{:?}/{:?}/{:?}", f_pprpa, f_pprpb, f_pprsa, f_pprsb);
+    }
     //---
     let pulsion_pprpa = reduction_theosophique(age + 1, false);
     let f_pulsion_pprpa = Some(pulsion_pprpa);
     let f_pulsion_pprsa = if f_pprsa.is_some() { f_pulsion_pprpa } else { None };
-    //println!("PulsioPPR: {:?}/{:?}", f_pulsion_pprpa, f_pulsion_pprsa);
+    if SW_DEBUG {
+        println!("PulsioPPR: {:?}/{:?}", f_pulsion_pprpa, f_pulsion_pprsa);
+    }
     let action_pprpa = reduction_theosophique(reduction_theosophique(age + 1, false) + pprpa, false);
     let action_pprpb = reduction_theosophique(reduction_theosophique(age + 1, false) + pprpb, false);
     let action_pprsa = reduction_theosophique(reduction_theosophique(age + 1, false) + pprsa, false);
@@ -220,7 +226,9 @@ fn calcl(j: usize, m: usize, a: usize, age: usize) -> Vec<String> {
     let f_action_pprpb = if f_pprpb.is_some() { Some(action_pprpb) } else { None };
     let f_action_pprsa = if f_pprsa.is_some() { Some(action_pprsa) } else { None };
     let f_action_pprsb = if f_pprsb.is_some() { Some(action_pprsb) } else { None };
-    //println!("ActionPPR: {:?}/{:?}/{:?}/{:?}", f_action_pprpa, f_action_pprpb, f_action_pprsa, f_action_pprsb);
+    if SW_DEBUG {
+        println!("ActionPPR: {:?}/{:?}/{:?}/{:?}", f_action_pprpa, f_action_pprpb, f_action_pprsa, f_action_pprsb);
+    }
     let reaction_pprpa = reduction_theosophique(action_pprpa + pprpa, false);
     let reaction_pprpb = reduction_theosophique(action_pprpb + pprpb, false);
     let reaction_pprsa = reduction_theosophique(action_pprsa + pprsa, false);
@@ -229,26 +237,35 @@ fn calcl(j: usize, m: usize, a: usize, age: usize) -> Vec<String> {
     let f_reaction_pprpb = if f_pprpb.is_some() { Some(reaction_pprpb) } else { None };
     let f_reaction_pprsa = if f_pprsa.is_some() { Some(reaction_pprsa) } else { None };
     let f_reaction_pprsb = if f_pprsb.is_some() { Some(reaction_pprsb) } else { None };
-    //println!("RéactiPPR: {:?}/{:?}/{:?}/{:?}", f_reaction_pprpa, f_reaction_pprpb, f_reaction_pprsa, f_reaction_pprsb);
+    if SW_DEBUG {
+        println!("RéactiPPR: {:?}/{:?}/{:?}/{:?}", f_reaction_pprpa, f_reaction_pprpb, f_reaction_pprsa, f_reaction_pprsb);
+    }
     //---
-    //println!("ActionNEM: {:?}/{:?}", f_action_nempa, f_action_nemsa);
     let f_pulsion_nempa = f_pulsion_pprpa;
     let f_pulsion_nemsa = if f_nemsa.is_some() { f_pulsion_pprsa } else { None };
-    //println!("PulsioNEM: {:?}/{:?}", f_pulsion_nempa, f_pulsion_nemsa);
+    if SW_DEBUG {
+        println!("PulsioNEM: {:?}/{:?}", f_pulsion_nempa, f_pulsion_nemsa);
+    }
     let action_nempa = reduction_theosophique(reduction_theosophique(age + 1, false) + nempa, false);
     let action_nemsa = reduction_theosophique(reduction_theosophique(age + 1, false) + nemsa, false);
     let f_action_nempa = Some(action_nempa);
     let f_action_nemsa = if f_nemsa.is_some() { Some(action_nemsa) } else { None };
-    //println!("ActionNEM: {:?}/{:?}", f_action_nempa, f_action_nemsa);
+    if SW_DEBUG {
+        println!("ActionNEM: {:?}/{:?}", f_action_nempa, f_action_nemsa);
+    }
     let reaction_nempa = reduction_theosophique(action_nempa + nempa, false);
     let reaction_nemsa = reduction_theosophique(action_nemsa + nemsa, false);
     let f_reaction_nempa = Some(reaction_nempa);
     let f_reaction_nemsa = if f_nemsa.is_some() { Some(reaction_nemsa) } else { None };
-    //println!("RéactiNEM: {:?}/{:?}", f_reaction_nempa, f_reaction_nemsa);
+    if SW_DEBUG {
+        println!("RéactiNEM: {:?}/{:?}", f_reaction_nempa, f_reaction_nemsa);
+    }
     //---
     let f_pulsion_pexpa = f_pulsion_pprpa;
     let f_pulsion_pexsa = f_pulsion_pprsa;
-    //println!("PulsioPEX: {:?}/{:?}", f_pulsion_pexpa, f_pulsion_pexsa);
+    if SW_DEBUG {
+        println!("PulsioPEX: {:?}/{:?}", f_pulsion_pexpa, f_pulsion_pexsa);
+    }
     let action_pexpa = reduction_theosophique(reduction_theosophique(age + 1, false) + pexpa, false);
     let action_pexpb = reduction_theosophique(reduction_theosophique(age + 1, false) + pexpb, false);
     let action_pexsa = reduction_theosophique(reduction_theosophique(age + 1, false) + pexsa, false);
@@ -257,7 +274,9 @@ fn calcl(j: usize, m: usize, a: usize, age: usize) -> Vec<String> {
     let f_action_pexpb = if f_pexpb.is_some() { Some(action_pexpb) } else { None };
     let f_action_pexsa = if f_pexsa.is_some() { Some(action_pexsa) } else { None };
     let f_action_pexsb = if f_pexsb.is_some() { Some(action_pexsb) } else { None };
-    //println!("ActionPEX: {:?}/{:?}/{:?}/{:?}", f_action_pexpa, f_action_pexpb, f_action_pexsa, f_action_pexsb);
+    if SW_DEBUG {
+        println!("ActionPEX: {:?}/{:?}/{:?}/{:?}", f_action_pexpa, f_action_pexpb, f_action_pexsa, f_action_pexsb);
+    }
     let reaction_pexpa = reduction_theosophique(action_pexpa + pexpa, false);
     let reaction_pexpb = reduction_theosophique(action_pexpb + pexpb, false);
     let reaction_pexsa = reduction_theosophique(action_pexsa + pexsa, false);
@@ -266,7 +285,9 @@ fn calcl(j: usize, m: usize, a: usize, age: usize) -> Vec<String> {
     let f_reaction_pexpb = if f_pexpb.is_some() { Some(reaction_pexpb) } else { None };
     let f_reaction_pexsa = if f_pexsa.is_some() { Some(reaction_pexsa) } else { None };
     let f_reaction_pexsb = if f_pexsb.is_some() { Some(reaction_pexsb) } else { None };
-    //println!("RéactiPEX: {:?}/{:?}/{:?}/{:?}", f_reaction_pexpa, f_reaction_pexpb, f_reaction_pexsa, f_reaction_pexsb);
+    if SW_DEBUG {
+        println!("RéactiPEX: {:?}/{:?}/{:?}/{:?}", f_reaction_pexpa, f_reaction_pexpb, f_reaction_pexsa, f_reaction_pexsb);
+    }
 
     //---
     let mut calque_a: Vec<String> = vec![];
