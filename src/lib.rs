@@ -2,7 +2,109 @@ use std::fs;
 use std::io::Cursor;
 use psd::{Psd};
 use image::RgbaImage;
-use serde::Deserialize;
+
+/****************
+ * Generate png *
+ ****************/
+pub fn generate(j: usize, m: usize, a: usize, age: usize, path_psd: String) -> Result<(Vec<u8>), Box<dyn std::error::Error>> {
+    let calques = calcl(j, m, a, age);
+    let psd_bytes = fs::read(&path_psd)
+        .map_err(|e| format!("Impossible de lire le PSD à '{}': {}", &path_psd, e))?;
+    let psd = Psd::from_bytes(&psd_bytes).unwrap();
+    let (doc_w, doc_h) = (psd.width(), psd.height());
+    let final_image: Vec<u8> = psd.rgba();
+    let mut final_image_img = RgbaImage::from_raw(doc_w, doc_h, final_image)
+        .expect("Le buffer RGBA ne correspond pas aux dimensions w*h*4");
+    for calque in calques.iter() {
+        for layer in psd.layers().iter().filter(|x| x.name() == calque.to_string()){
+            let name = layer.name();
+            //if name != "" {
+            //    println!("Layer name: {}", name);
+            //}
+
+            let pixels: Vec<u8> = layer.rgba();
+
+            // Dimensions document en usize pour l'indexation
+            let (dw, dh) = (doc_w as usize, doc_h as usize);
+
+            // Sécurité: on vérifie la cohérence avec la taille du document
+            if pixels.len() != dw * dh * 4 {
+                eprintln!(
+                    "Taille de buffer inattendue (document) pour le calque '{}': {} != {}",
+                    name,
+                    pixels.len(),
+                    dw * dh * 4
+                );
+                continue;
+            }
+
+            // Superposition à l'origine (0,0) sur toute la surface du document
+            for y in 0..dh {
+                for x in 0..dw {
+                    let src_idx = ((y * dw + x) * 4) as usize;
+
+                    let sr = pixels[src_idx] as f32;
+                    let sg = pixels[src_idx + 1] as f32;
+                    let sb = pixels[src_idx + 2] as f32;
+                    let sa = pixels[src_idx + 3] as f32 / 255.0;
+
+                    if sa == 0.0 {
+                        continue;
+                    }
+                    let dst_px = final_image_img.get_pixel_mut((x) as u32, (y) as u32);
+
+                    let dr = dst_px[0] as f32;
+                    let dg = dst_px[1] as f32;
+                    let db = dst_px[2] as f32;
+                    let da = dst_px[3] as f32 / 255.0;
+
+                    // Alpha-over (SRC over DST)
+                    let out_a = sa + da * (1.0 - sa);
+                    let (out_r, out_g, out_b) = if out_a > 0.0 {
+                        (
+                            (sr * sa + dr * da * (1.0 - sa)) / out_a,
+                            (sg * sa + dg * da * (1.0 - sa)) / out_a,
+                            (sb * sa + db * da * (1.0 - sa)) / out_a,
+                        )
+                    } else {
+                        (0.0, 0.0, 0.0)
+                    };
+
+                    *dst_px = image::Rgba([
+                        out_r.clamp(0.0, 255.0) as u8,
+                        out_g.clamp(0.0, 255.0) as u8,
+                        out_b.clamp(0.0, 255.0) as u8,
+                        (out_a * 255.0).clamp(0.0, 255.0) as u8,
+                    ]);
+                }
+            }
+        }
+    }
+    //final_image_img.save("./tmp/cycles.png").unwrap();
+    let mut buf = Vec::new();
+    final_image_img
+        .write_to(&mut Cursor::new(&mut buf), image::ImageFormat::Png)
+        .expect("Échec encodage PNG");
+    Ok(buf)
+}
+
+/**************************
+ * Réduction théosophique *
+ * sw_9 = false -> 22     *
+ * sw_9 = true -> 9       *
+ **************************/
+fn reduction_theosophique(mut n: usize, sw_9: bool) -> usize {
+    let t = if sw_9 { 9 } else { 22 };
+    while n > t {
+        let mut sum = 0;
+        while n > 0 {
+            sum += n % 10;
+            n /= 10;
+        }
+        n = sum;
+    }
+    n
+}
 
 /********************************
  * Calcul des calques Photoshop *
@@ -400,109 +502,6 @@ fn calcl(j: usize, m: usize, a: usize, age: usize) -> Vec<String> {
     calques.extend(calque_ac.iter().cloned());
     calques.extend(calque_a.iter().cloned());
     calques
-}
-
-/**************************
- * Réduction théosophique *
- * sw_9 = false -> 22     *
- * sw_9 = true -> 9       *
- **************************/
-fn reduction_theosophique(mut n: usize, sw_9: bool) -> usize {
-    let t = if sw_9 { 9 } else { 22 };
-    while n > t {
-        let mut sum = 0;
-        while n > 0 {
-            sum += n % 10;
-            n /= 10;
-        }
-        n = sum;
-    }
-    n
-}
-
-/****************
- * Generate png *
- ****************/
-pub fn generate(j: usize, m: usize, a: usize, age: usize, path_psd: String) -> Result<(Vec<u8>), Box<dyn std::error::Error>> {
-    let calques = calcl(j, m, a, age);
-    let psd_bytes = fs::read(&path_psd)
-        .map_err(|e| format!("Impossible de lire le PSD à '{}': {}", &path_psd, e))?;
-    let psd = Psd::from_bytes(&psd_bytes).unwrap();
-    let (doc_w, doc_h) = (psd.width(), psd.height());
-    let final_image: Vec<u8> = psd.rgba();
-    let mut final_image_img = RgbaImage::from_raw(doc_w, doc_h, final_image)
-        .expect("Le buffer RGBA ne correspond pas aux dimensions w*h*4");
-    for calque in calques.iter() {
-        for layer in psd.layers().iter().filter(|x| x.name() == calque.to_string()){
-            let name = layer.name();
-            //if name != "" {
-            //    println!("Layer name: {}", name);
-            //}
-
-            let pixels: Vec<u8> = layer.rgba();
-
-            // Dimensions document en usize pour l'indexation
-            let (dw, dh) = (doc_w as usize, doc_h as usize);
-
-            // Sécurité: on vérifie la cohérence avec la taille du document
-            if pixels.len() != dw * dh * 4 {
-                eprintln!(
-                    "Taille de buffer inattendue (document) pour le calque '{}': {} != {}",
-                    name,
-                    pixels.len(),
-                    dw * dh * 4
-                );
-                continue;
-            }
-
-            // Superposition à l'origine (0,0) sur toute la surface du document
-            for y in 0..dh {
-                for x in 0..dw {
-                    let src_idx = ((y * dw + x) * 4) as usize;
-
-                    let sr = pixels[src_idx] as f32;
-                    let sg = pixels[src_idx + 1] as f32;
-                    let sb = pixels[src_idx + 2] as f32;
-                    let sa = pixels[src_idx + 3] as f32 / 255.0;
-
-                    if sa == 0.0 {
-                        continue;
-                    }
-                    let dst_px = final_image_img.get_pixel_mut((x) as u32, (y) as u32);
-
-                    let dr = dst_px[0] as f32;
-                    let dg = dst_px[1] as f32;
-                    let db = dst_px[2] as f32;
-                    let da = dst_px[3] as f32 / 255.0;
-
-                    // Alpha-over (SRC over DST)
-                    let out_a = sa + da * (1.0 - sa);
-                    let (out_r, out_g, out_b) = if out_a > 0.0 {
-                        (
-                            (sr * sa + dr * da * (1.0 - sa)) / out_a,
-                            (sg * sa + dg * da * (1.0 - sa)) / out_a,
-                            (sb * sa + db * da * (1.0 - sa)) / out_a,
-                        )
-                    } else {
-                        (0.0, 0.0, 0.0)
-                    };
-
-                    *dst_px = image::Rgba([
-                        out_r.clamp(0.0, 255.0) as u8,
-                        out_g.clamp(0.0, 255.0) as u8,
-                        out_b.clamp(0.0, 255.0) as u8,
-                        (out_a * 255.0).clamp(0.0, 255.0) as u8,
-                    ]);
-                }
-            }
-        }
-    }
-    //final_image_img.save("./tmp/cycles.png").unwrap();
-    let mut buf = Vec::new();
-    final_image_img
-        .write_to(&mut Cursor::new(&mut buf), image::ImageFormat::Png)
-        .expect("Échec encodage PNG");
-    Ok(buf)
 }
 
 /***********************************
