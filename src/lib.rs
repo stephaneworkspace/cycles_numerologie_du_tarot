@@ -415,7 +415,7 @@ fn reduction_theosophique(mut n: usize, sw_9: bool) -> usize {
 }
 
 pub fn generate(j: usize, m: usize, a: usize, age: usize, path_psd: String) -> Result<(), Box<dyn std::error::Error>> {
-    let calques = calcl(3,4,1986, 39);
+    let calques = calcl(j, m, a, age);
     let psd_bytes = fs::read(&path_psd)
         .map_err(|e| format!("Impossible de lire le PSD à '{}': {}", &path_psd, e))?;
     let psd = Psd::from_bytes(&psd_bytes).unwrap();
